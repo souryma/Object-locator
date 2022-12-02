@@ -1,9 +1,26 @@
 <script lang="ts">
   import svelteLogo from './assets/svelte.svg'
   import Counter from './lib/Counter.svelte'
-    import Distance from './lib/Distance.svelte';
-    import Geolocation from './lib/Geolocation.svelte';
-    import GeolocationWatch from './lib/GeolocationWatch.svelte';
+  import Distance from './lib/Distance.svelte';
+  import GeolocationWatch from './lib/GeolocationWatch.svelte';
+
+  let first_position = [0, 0]
+  let second_position = [0, 0]
+
+  const getFirstPosition = () => {
+      navigator.geolocation.getCurrentPosition((position) => {
+          first_position[0] = position.coords.latitude
+          first_position[1] = position.coords.longitude
+      });
+  }
+
+  const getSecondPosition = () => {
+    navigator.geolocation.getCurrentPosition((position) => {
+        second_position[0] = position.coords.latitude
+        second_position[1] = position.coords.longitude
+    });
+  }
+
 </script>
 
 <main>
@@ -15,13 +32,26 @@
       <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
     </a>
   </div>
-  <h1>Vite + Svelte</h1>
+  <h1>Vite + svelte</h1>
 
   <div class="card">
-    <Geolocation positionNumber={1}/>
-    <Geolocation positionNumber={2}/>
-    <Distance lat1={45.6538353} lat2={45.6538355} lon1={0.1486953} lon2={0.1486953}/>  
-    <GeolocationWatch display={false}/>
+    <div class="position">
+      <button on:click={getFirstPosition}>
+        Get position
+      </button>
+      <p>Lat : {first_position[0]}</p>
+      <p>Lon : {first_position[1]}</p>
+    </div>
+    
+    <div class="position">
+      <button on:click={getSecondPosition}>
+        Get position
+      </button>
+      <p>Lat : {second_position[0]}</p>
+      <p>Lon : {second_position[1]}</p>
+    </div>
+
+    <Distance lat1={first_position[0]} lon1={first_position[1]} lat2={second_position[0]} lon2={second_position[1]}/>  
   </div>
 
   <p>
@@ -34,9 +64,16 @@
 </main>
 
 <style>
-  .card{
+  .position {
     display: flex;
     justify-content: space-around;
+  }
+
+  .card {
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
   }
   .logo {
     height: 6em;
