@@ -58,6 +58,7 @@
         lon2={second_position[1]}
       />
 
+      <GeolocationWatch display={true}/>
     </div>
   {:else}
     <p>The navigator doesn't have Geolocation</p>
