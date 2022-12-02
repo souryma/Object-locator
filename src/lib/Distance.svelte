@@ -34,7 +34,7 @@
 </script>
 
 <div class="distance">
-  <button on:click={distance}> Get distance between points </button>
+  <button on:click={distance}> Get distance between you and the object </button>
   {#if distanceBetweenPositions >= 0}
     <p>Distance : {distanceBetweenPositions} km</p>
   {/if}

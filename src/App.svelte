@@ -1,23 +1,21 @@
 <script lang="ts">
   import svelteLogo from "./assets/svelte.svg";
-  import Counter from "./lib/Counter.svelte";
   import Distance from "./lib/Distance.svelte";
-  import GeolocationWatch from "./lib/GeolocationWatch.svelte";
 
-  let first_position = [0, 0];
-  let second_position = [0, 0];
+  let watcher_position = [0, 0];
+  let object_position = [0, 0];
 
-  const getFirstPosition = () => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      first_position[0] = position.coords.latitude;
-      first_position[1] = position.coords.longitude;
+  const watchActualPosition = () => {
+    navigator.geolocation.watchPosition((position) => {
+      watcher_position[0] = position.coords.latitude;
+      watcher_position[1] = position.coords.longitude;
     });
   };
 
-  const getSecondPosition = () => {
+  const getObjectPosition = () => {
     navigator.geolocation.getCurrentPosition((position) => {
-      second_position[0] = position.coords.latitude;
-      second_position[1] = position.coords.longitude;
+      object_position[0] = position.coords.latitude;
+      object_position[1] = position.coords.longitude;
     });
   };
 </script>
@@ -36,29 +34,27 @@
   {#if "geolocation" in navigator}
     <div class="card">
       <div class="position">
-        <button on:click={getFirstPosition}> Get position </button>
+        <button on:click={watchActualPosition}> Get your position </button>
         <div class="coords">
-          <p>Latitude : {first_position[0]}</p>
-          <p>Longitude : {first_position[1]}</p>
+          <p>Your latitude : {watcher_position[0]}</p>
+          <p>Your longitude : {watcher_position[1]}</p>
         </div>
       </div>
 
       <div class="position">
-        <button on:click={getSecondPosition}> Get position </button>
+        <button on:click={getObjectPosition}> Set your object position </button>
         <div class="coords">
-          <p>Latitude : {second_position[0]}</p>
-          <p>Longitude : {second_position[1]}</p>
+          <p>Object latitude : {object_position[0]}</p>
+          <p>Object longitude : {object_position[1]}</p>
         </div>
       </div>
 
       <Distance
-        lat1={first_position[0]}
-        lon1={first_position[1]}
-        lat2={second_position[0]}
-        lon2={second_position[1]}
+        lat1={watcher_position[0]}
+        lon1={watcher_position[1]}
+        lat2={object_position[0]}
+        lon2={object_position[1]}
       />
-
-      <GeolocationWatch display={true}/>
     </div>
   {:else}
     <p>The navigator doesn't have Geolocation</p>
