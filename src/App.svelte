@@ -23,7 +23,6 @@
   let distanceInCM: number = 0;
   let distanceInM: number = 0;
 
-
   const distance = () => {
     // The math module contains a function
     // named toRadians which converts from
@@ -52,14 +51,25 @@
     distanceInKM = parseInt(String(distanceBetweenPositions))
     distanceInM = parseInt(String((distanceBetweenPositions - distanceInKM) * 1000));
     distanceInCM = parseInt(String((((distanceBetweenPositions - distanceInKM) * 1000) - distanceInM) * 100));
-
   };
+
+  let angle: number = 100;
+
+  const orientation = () => {
+
+    let deltaLongitudes = watcher_position[1] - object_position[1];
+    let pointA = Math.cos(object_position[0]) * Math.sin(deltaLongitudes);
+    let pointB = Math.cos(watcher_position[0]) * Math.sin(object_position[0]) - Math.sin(watcher_position[0]) * Math.cos(object_position[0]) * Math.cos(deltaLongitudes);
+
+    angle = Math.atan2(pointA, pointB);
+  }
 
   let ms = 1000;
   let clear;
   $: {
     clearInterval(clear);
     clear = setInterval(distance, ms);
+    clear = setInterval(orientation, ms);
   }
 </script>
 
@@ -98,6 +108,9 @@
 
       <div class="coords">
         <p>Distance to your object : {#if distanceInKM != 0}{distanceInKM} Km / {/if}{#if distanceInM != 0}{distanceInM} m / {/if}{distanceInCM} cm</p>
+      </div>
+      <div class="coords">
+        <p>Angle to your object : {angle}°</p>
       </div>
     </div>
   {:else}
