@@ -18,6 +18,34 @@
       object_position[1] = position.coords.longitude;
     });
   };
+
+  let distanceBetweenPositions: number = 0;
+
+  const distance = () => {
+    // The math module contains a function
+    // named toRadians which converts from
+    // degrees to radians.
+    let lon1 = (watcher_position[1] * Math.PI) / 180;
+    let lon2 = (object_position[1] * Math.PI) / 180;
+    let lat1 = (watcher_position[0] * Math.PI) / 180;
+    let lat2 = (object_position[0] * Math.PI) / 180;
+
+    // Haversine formula
+    let dlon = lon2 - lon1;
+    let dlat = lat2 - lat1;
+    let a =
+      Math.pow(Math.sin(dlat / 2), 2) +
+      Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
+
+    let c = 2 * Math.asin(Math.sqrt(a));
+
+    // Radius of earth in kilometers. Use 3956
+    // for miles
+    let r = 6371;
+
+    // calculate the result
+    distanceBetweenPositions = c * r;
+  };
 </script>
 
 <main>
@@ -34,7 +62,7 @@
   {#if "geolocation" in navigator}
     <div class="card">
       <div class="position">
-        <button on:click={watchActualPosition}> Get your position </button>
+        <button on:click={watchActualPosition}>Authorize your position</button>
         <div class="coords">
           <p>Your latitude : {watcher_position[0]}</p>
           <p>Your longitude : {watcher_position[1]}</p>
@@ -49,12 +77,12 @@
         </div>
       </div>
 
-      <Distance
-        lat1={watcher_position[0]}
-        lon1={watcher_position[1]}
-        lat2={object_position[0]}
-        lon2={object_position[1]}
-      />
+      <div class="position">
+        <button on:click={distance}> Get distance to your object </button>
+        <div class="coords">
+          <p>Distance : {distanceBetweenPositions} M</p>
+        </div>
+      </div>
     </div>
   {:else}
     <p>The navigator doesn't have Geolocation</p>
