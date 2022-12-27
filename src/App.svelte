@@ -19,6 +19,10 @@
   };
 
   let distanceBetweenPositions: number = 0;
+  let distanceInKM: number = 0;
+  let distanceInCM: number = 0;
+  let distanceInM: number = 0;
+
 
   const distance = () => {
     // The math module contains a function
@@ -44,6 +48,11 @@
 
     // calculate the result
     distanceBetweenPositions = c * r;
+
+    distanceInKM = parseInt(String(distanceBetweenPositions))
+    distanceInM = parseInt(String((distanceBetweenPositions - distanceInKM) * 1000));
+    distanceInCM = parseInt(String((((distanceBetweenPositions - distanceInKM) * 1000) - distanceInM) * 100));
+
   };
 
   let ms = 1000;
@@ -88,7 +97,7 @@
       </div>
 
       <div class="coords">
-        <p>Distance to your object : {distanceBetweenPositions} M</p>
+        <p>Distance to your object : {#if distanceInKM != 0}{distanceInKM} Km / {/if}{#if distanceInM != 0}{distanceInM} m / {/if}{distanceInCM} cm</p>
       </div>
     </div>
   {:else}
