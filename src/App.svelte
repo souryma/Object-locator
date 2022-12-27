@@ -111,6 +111,18 @@
       </div>
       <div class="coords">
         <p>Angle to your object : {angle}°</p>
+        {#if angle < 45 && angle > -45}
+          <p>Direction : South</p>
+        {/if}
+        {#if angle < -135 && angle > -45}
+          <p>Direction : East</p>
+        {/if}
+        {#if angle < -135 && angle > 135}
+          <p>Direction : North</p>
+        {/if}
+        {#if angle < 135 && angle > 45}
+          <p>Direction : West</p>
+        {/if}
       </div>
     </div>
   {:else}
