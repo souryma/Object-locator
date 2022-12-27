@@ -1,6 +1,5 @@
 <script lang="ts">
   import svelteLogo from "./assets/svelte.svg";
-  import Distance from "./lib/Distance.svelte";
 
   let watcher_position = [0, 0];
   let object_position = [0, 0];
@@ -46,6 +45,13 @@
     // calculate the result
     distanceBetweenPositions = c * r;
   };
+
+  let ms = 1000;
+  let clear;
+  $: {
+    clearInterval(clear);
+    clear = setInterval(distance, ms);
+  }
 </script>
 
 <main>
@@ -58,6 +64,10 @@
     </a>
   </div>
   <h1>Vite + svelte</h1>
+
+  <!-- DEBUG : Distance update speed -->
+  Distance update speed :
+  <input type="number" bind:value={ms} />
 
   {#if "geolocation" in navigator}
     <div class="card">
@@ -77,11 +87,8 @@
         </div>
       </div>
 
-      <div class="position">
-        <button on:click={distance}> Get distance to your object </button>
-        <div class="coords">
-          <p>Distance : {distanceBetweenPositions} M</p>
-        </div>
+      <div class="coords">
+        <p>Distance to your object : {distanceBetweenPositions} M</p>
       </div>
     </div>
   {:else}
