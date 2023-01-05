@@ -76,6 +76,9 @@
   const angleFromCoordinate = () => {
     // Returns angle in degrees based on coordinates
     angle = (Math.atan2(object_position[1] - watcher_position[1], object_position[0] - watcher_position[0]) * 180) / Math.PI;
+    if (angle < 0){
+      angle += 360;
+    }
   };
 
   let ms = 1000;
@@ -124,16 +127,16 @@
       </div>
       <div class="coords">
         <p>Angle to your object : {angle}°</p>
-        {#if angle < 45 && angle > -45}
+        {#if angle < 225 && angle >= 135}
           <p>Direction : South</p>
         {/if}
-        {#if angle < -135 && angle > -45}
+        {#if angle < 135 && angle >= 45}
           <p>Direction : East</p>
         {/if}
-        {#if angle < -135 && angle > 135}
+        {#if angle < 45  && angle >= 315}
           <p>Direction : North</p>
         {/if}
-        {#if angle < 135 && angle > 45}
+        {#if angle < 315 && angle >= 225}
           <p>Direction : West</p>
         {/if}
       </div>
