@@ -133,11 +133,11 @@
         {#if angle < 135 && angle >= 45}
           <p>Direction : East</p>
         {/if}
-        {#if angle < 45  && angle >= 315}
-          <p>Direction : North</p>
-        {/if}
         {#if angle < 315 && angle >= 225}
           <p>Direction : West</p>
+        {/if}
+        {#if angle < 45  || angle >= 315}
+          <p>Direction : North</p>
         {/if}
       </div>
     </div>
