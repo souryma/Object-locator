@@ -5,6 +5,7 @@
   let object_position = [0, 0];
 
   const watchActualPosition = () => {
+    console.log("Watcher position")
     navigator.geolocation.watchPosition((position) => {
       watcher_position[0] = position.coords.latitude;
       watcher_position[1] = position.coords.longitude;
@@ -12,6 +13,7 @@
   };
 
   const getObjectPosition = () => {
+    console.log("Object position")
     navigator.geolocation.getCurrentPosition((position) => {
       object_position[0] = position.coords.latitude;
       object_position[1] = position.coords.longitude;
@@ -59,19 +61,7 @@
     );
   };
 
-  let angle: number = 100;
-
-  const orientation = () => {
-    let deltaLongitudes = watcher_position[1] - object_position[1];
-    let pointA = Math.cos(object_position[0]) * Math.sin(deltaLongitudes);
-    let pointB =
-      Math.cos(watcher_position[0]) * Math.sin(object_position[0]) -
-      Math.sin(watcher_position[0]) *
-        Math.cos(object_position[0]) *
-        Math.cos(deltaLongitudes);
-
-    angle = Math.atan2(pointA, pointB);
-  };
+  let angle: number = 0;
 
   const angleFromCoordinate = () => {
     // Returns angle in degrees based on coordinates
@@ -91,14 +81,11 @@
 </script>
 
 <main>
-  <!-- <div>
+  <div>
     <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src="/vite.svg" class="logo" alt="Vite Logo" />
+      <img src="/vite.svg" class="logo" alt="Vite Logo" style="transform: rotate({angle}deg)"/>
     </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div> -->
+  </div>
   <h1>Locate an object</h1>
 
   {#if "geolocation" in navigator}
@@ -165,12 +152,9 @@
   .logo {
     height: 6em;
     padding: 1.5em;
-    will-change: filter;
+    transition: transform 0.3s;
   }
   .logo:hover {
     filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
   }
 </style>
