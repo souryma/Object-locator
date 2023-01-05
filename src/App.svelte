@@ -5,19 +5,19 @@
   let object_position = [0, 0];
 
   const watchActualPosition = () => {
-    console.log("Watcher position")
     navigator.geolocation.watchPosition((position) => {
       watcher_position[0] = position.coords.latitude;
       watcher_position[1] = position.coords.longitude;
     });
+    isWatcherPositionSet = true;
   };
 
   const getObjectPosition = () => {
-    console.log("Object position")
     navigator.geolocation.getCurrentPosition((position) => {
       object_position[0] = position.coords.latitude;
       object_position[1] = position.coords.longitude;
     });
+    isObjectPositionSet = true;
   };
 
   let distanceBetweenPositions: number = 0;
@@ -62,12 +62,29 @@
   };
 
   let angle: number = 0;
+  let direction: string = "";
 
   const angleFromCoordinate = () => {
     // Returns angle in degrees based on coordinates
-    angle = (Math.atan2(object_position[1] - watcher_position[1], object_position[0] - watcher_position[0]) * 180) / Math.PI;
-    if (angle < 0){
+    angle =
+      (Math.atan2(
+        object_position[1] - watcher_position[1],
+        object_position[0] - watcher_position[0]
+      ) *
+        180) /
+      Math.PI;
+    if (angle < 0) {
       angle += 360;
+    }
+
+    if (angle < 225 && angle >= 135) {
+      direction = "South";
+    } else if (angle < 135 && angle >= 45) {
+      direction = "East";
+    } else if (angle < 315 && angle >= 225) {
+      direction = "West";
+    } else if (angle < 45 || angle >= 315) {
+      direction = "North";
     }
   };
 
@@ -78,55 +95,58 @@
     clear = setInterval(distance, ms);
     clear = setInterval(angleFromCoordinate, ms);
   }
+
+  let isObjectPositionSet: boolean = false;
+  let isWatcherPositionSet: boolean = false;
 </script>
 
 <main>
+  <h1>Locate an object</h1>
+
   <div>
     <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src="/vite.svg" class="logo" alt="Vite Logo" style="transform: rotate({angle}deg)"/>
+      <img
+        src="/vite.svg"
+        class="logo"
+        alt="Vite Logo"
+        style="transform: rotate({-angle}deg)"
+      />
     </a>
   </div>
-  <h1>Locate an object</h1>
 
   {#if "geolocation" in navigator}
     <div class="card">
-      <div class="position">
-        <button on:click={watchActualPosition}>Authorize your position</button>
-        <div class="coords">
-          <p>Your latitude : {watcher_position[0]}</p>
-          <p>Your longitude : {watcher_position[1]}</p>
+      {#if isObjectPositionSet == false}
+        <div class="position">
+          <button on:click={getObjectPosition}>Set your object position</button>
         </div>
-      </div>
+      {:else if isWatcherPositionSet == false}
+        <div class="position">
+          <button on:click={watchActualPosition}>Authorize your position</button
+          >
+        </div>
+      {/if}
 
-      <div class="position">
-        <button on:click={getObjectPosition}>Set your object position</button>
+      {#if isObjectPositionSet && isWatcherPositionSet}
         <div class="coords">
           <p>Object latitude : {object_position[0]}</p>
           <p>Object longitude : {object_position[1]}</p>
         </div>
-      </div>
-
-      <div class="coords">
-        <p>
-          Distance to your object : {#if distanceInKM != 0}{distanceInKM} Km /
-          {/if}{#if distanceInM != 0}{distanceInM} m / {/if}{distanceInCM} cm
-        </p>
-      </div>
-      <div class="coords">
-        <p>Angle to your object : {angle}°</p>
-        {#if angle < 225 && angle >= 135}
-          <p>Direction : South</p>
-        {/if}
-        {#if angle < 135 && angle >= 45}
-          <p>Direction : East</p>
-        {/if}
-        {#if angle < 315 && angle >= 225}
-          <p>Direction : West</p>
-        {/if}
-        {#if angle < 45  || angle >= 315}
-          <p>Direction : North</p>
-        {/if}
-      </div>
+        <div class="coords">
+          <p>Your latitude : {watcher_position[0]}</p>
+          <p>Your longitude : {watcher_position[1]}</p>
+        </div>
+        <div class="distance">
+          <p>
+            Distance to your object : {#if distanceInKM != 0}{distanceInKM} Km /
+            {/if}{#if distanceInM != 0}{distanceInM} m / {/if}{distanceInCM} cm
+          </p>
+        </div>
+        <div class="orientation">
+          <p>Angle to your object : {angle}°</p>
+          <p>Direction : {direction}</p>
+        </div>
+      {/if}
     </div>
   {:else}
     <p>The navigator doesn't have Geolocation</p>
