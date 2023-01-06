@@ -98,6 +98,13 @@
 
   let isObjectPositionSet: boolean = false;
   let isWatcherPositionSet: boolean = false;
+
+  let IosAngle: number = 0;
+  window.addEventListener("deviceorientation", handler, true);
+
+  function handler(e) {
+    IosAngle = e.webkitCompassHeading || Math.abs(e.alpha - 360);
+  }
 </script>
 
 <main>
@@ -127,14 +134,18 @@
         </div>
       {/if}
 
+      <p>Test angle : {IosAngle}</p>
+
       {#if isObjectPositionSet && isWatcherPositionSet}
-        <div class="coords">
-          <p>Object latitude : {object_position[0]}</p>
-          <p>Object longitude : {object_position[1]}</p>
-        </div>
-        <div class="coords">
-          <p>Your latitude : {watcher_position[0]}</p>
-          <p>Your longitude : {watcher_position[1]}</p>
+        <div class="coordinates">
+          <div class="coords">
+            <p>Object latitude : {object_position[0]}</p>
+            <p>Object longitude : {object_position[1]}</p>
+          </div>
+          <div class="coords">
+            <p>Your latitude : {watcher_position[0]}</p>
+            <p>Your longitude : {watcher_position[1]}</p>
+          </div>
         </div>
         <div class="distance">
           <p>
@@ -159,9 +170,15 @@
     justify-content: space-around;
   }
 
+  .coordinates {
+    display: flex;
+    justify-content: space-between;
+  }
+
   .coords {
     display: flex;
     flex-direction: column;
+    justify-content: end;
   }
 
   .card {
