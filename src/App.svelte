@@ -130,18 +130,17 @@
 
   let deviceOrientation: number = 0;
 
+  // Request device orientation permission
   const enableDeviceOrientation = () => {
     if (typeof DeviceOrientationEvent.requestPermission === "function") {
       DeviceOrientationEvent.requestPermission()
         .then((permissionState) => {
           if (permissionState === "granted") {
-            console.log("Permission granted");
             window.addEventListener("deviceorientation", () => {});
           }
         })
         .catch(console.error);
     } else {
-      console.log("Error");
     }
   };
 
@@ -179,7 +178,7 @@
               src="/Dark_Green_Arrow_Up.png"
               class="logo"
               alt="Direction to the object"
-              style="transform: rotate({angleToObject}deg)"
+              style="transform: rotate({angleToObject + deviceOrientation}deg)"
             />
           </a>
         </div>
