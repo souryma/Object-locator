@@ -130,6 +130,21 @@
 
   let deviceOrientation: number = 0;
 
+  const enableDeviceOrientation = () => {
+    if (typeof DeviceOrientationEvent.requestPermission === "function") {
+      DeviceOrientationEvent.requestPermission()
+        .then((permissionState) => {
+          if (permissionState === "granted") {
+            console.log("Permission granted");
+            window.addEventListener("deviceorientation", () => {});
+          }
+        })
+        .catch(console.error);
+    } else {
+      console.log("Error");
+    }
+  };
+
   function deviceOrientationHandler(eventData) {
     // device orienation angle (counterclockwise)
     deviceOrientation = eventData.alpha;
@@ -152,6 +167,9 @@
         </div>
       {/if}
 
+      <div class="position">
+        <button on:click={enableDeviceOrientation}>Authorize orientation</button>
+      </div>
       <p>Device orientation : {deviceOrientation}</p>
 
       {#if isObjectPositionSet && isWatcherPositionSet}
