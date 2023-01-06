@@ -1,6 +1,5 @@
 <script lang="ts">
   import svelteLogo from "./assets/svelte.svg";
-  import compass from "./assets/compass.jpg";
 
   let watcher_position = [0, 0];
   let object_position = [0, 0];
@@ -121,7 +120,7 @@
         <div>
           <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
             <img
-              src="{compass}"
+              src="/compass.jpg"
               class="logo"
               alt="Compass"
               style="transform: rotate({angle}deg)"
