@@ -117,6 +117,23 @@
 
   let isObjectPositionSet: boolean = false;
   let isWatcherPositionSet: boolean = false;
+
+  if ("DeviceOrientationEvent" in window) {
+    window.addEventListener(
+      "deviceorientation",
+      deviceOrientationHandler,
+      false
+    );
+  } else {
+    // TODO
+  }
+
+  let deviceOrientation: number = 0;
+
+  function deviceOrientationHandler(eventData) {
+    // device orienation angle (counterclockwise)
+    deviceOrientation = eventData.alpha;
+  }
 </script>
 
 <main>
@@ -135,6 +152,8 @@
         </div>
       {/if}
 
+      <p>Device orientation : {deviceOrientation}</p>
+
       {#if isObjectPositionSet && isWatcherPositionSet}
         <div>
           <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
@@ -148,14 +167,13 @@
         </div>
 
         <div>
-          <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-            <img
-              src="/compass.jpg"
-              class="logo"
-              alt="Compass"
-              style="transform: rotate({angleToNorthPole}deg)"
-            />
-          </a>
+          <img
+            src="/compass.jpg"
+            class="logo"
+            alt="Compass"
+            style="transform: rotate({angleToNorthPole}deg)"
+          />
+          <p>Angle to north : {angleToNorthPole}</p>
         </div>
 
         <div class="coordinates">
