@@ -1,5 +1,6 @@
 <script lang="ts">
   import svelteLogo from "./assets/svelte.svg";
+  import compass from "./assets/compass.jpg";
 
   let watcher_position = [0, 0];
   let object_position = [0, 0];
@@ -98,28 +99,10 @@
 
   let isObjectPositionSet: boolean = false;
   let isWatcherPositionSet: boolean = false;
-
-  let IosAngle: number = 0;
-  window.addEventListener("deviceorientation", handler, true);
-
-  function handler(e) {
-    IosAngle = e.webkitCompassHeading || Math.abs(e.alpha - 360);
-  }
 </script>
 
 <main>
   <h1>Locate an object</h1>
-
-  <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img
-        src="/vite.svg"
-        class="logo"
-        alt="Vite Logo"
-        style="transform: rotate({-angle}deg)"
-      />
-    </a>
-  </div>
 
   {#if "geolocation" in navigator}
     <div class="card">
@@ -134,9 +117,18 @@
         </div>
       {/if}
 
-      <p>Test angle : {IosAngle}</p>
-
       {#if isObjectPositionSet && isWatcherPositionSet}
+        <div>
+          <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
+            <img
+              src="{compass}"
+              class="logo"
+              alt="Compass"
+              style="transform: rotate({angle}deg)"
+            />
+          </a>
+        </div>
+
         <div class="coordinates">
           <div class="coords">
             <p>Object latitude : {object_position[0]}</p>
