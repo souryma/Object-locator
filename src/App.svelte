@@ -61,30 +61,48 @@
     );
   };
 
-  let angle: number = 0;
+  let angleToObject: number = 0;
   let direction: string = "";
 
   const angleFromCoordinate = () => {
     // Returns angle in degrees based on coordinates
-    angle =
+    angleToObject =
       (Math.atan2(
         object_position[1] - watcher_position[1],
         object_position[0] - watcher_position[0]
       ) *
         180) /
       Math.PI;
-    if (angle < 0) {
-      angle += 360;
+    if (angleToObject < 0) {
+      angleToObject += 360;
     }
 
-    if (angle < 225 && angle >= 135) {
+    if (angleToObject < 225 && angleToObject >= 135) {
       direction = "South";
-    } else if (angle < 135 && angle >= 45) {
+    } else if (angleToObject < 135 && angleToObject >= 45) {
       direction = "East";
-    } else if (angle < 315 && angle >= 225) {
+    } else if (angleToObject < 315 && angleToObject >= 225) {
       direction = "West";
-    } else if (angle < 45 || angle >= 315) {
+    } else if (angleToObject < 45 || angleToObject >= 315) {
       direction = "North";
+    }
+  };
+
+  let angleToNorthPole: number = 0;
+
+  const angleToNorth = () => {
+    // Returns the angle heading to the north
+    let north_pole = [90, 0];
+
+    angleToNorthPole =
+      (Math.atan2(
+        north_pole[1] - watcher_position[1],
+        north_pole[0] - watcher_position[0]
+      ) *
+        180) /
+      Math.PI;
+    if (angleToNorthPole < 0) {
+      angleToNorthPole += 360;
     }
   };
 
@@ -94,6 +112,7 @@
     clearInterval(clear);
     clear = setInterval(distance, ms);
     clear = setInterval(angleFromCoordinate, ms);
+    clear = setInterval(angleToNorth, ms);
   }
 
   let isObjectPositionSet: boolean = false;
@@ -120,10 +139,21 @@
         <div>
           <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
             <img
+              src="/Dark_Green_Arrow_Up.png"
+              class="logo"
+              alt="Direction to the object"
+              style="transform: rotate({angleToObject}deg)"
+            />
+          </a>
+        </div>
+
+        <div>
+          <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
+            <img
               src="/compass.jpg"
               class="logo"
               alt="Compass"
-              style="transform: rotate({angle}deg)"
+              style="transform: rotate({angleToNorthPole}deg)"
             />
           </a>
         </div>
@@ -145,7 +175,7 @@
           </p>
         </div>
         <div class="orientation">
-          <p>Angle to your object : {angle}°</p>
+          <p>Angle to your object : {angleToObject}°</p>
           <p>Direction : {direction}</p>
         </div>
       {/if}
