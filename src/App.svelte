@@ -2,9 +2,9 @@
   import svelteLogo from "./assets/svelte.svg";
 
   // Position of the navigator (mobile)
-  let watcher_position = [0, 0];
+  let watcher_position: [number, number] = [0, 0];
   // Position of the object (immobile)
-  let object_position = [0, 0];
+  let object_position: [number, number] = [0, 0];
   let angleToObject: number = 0;
   let direction: string = "";
   let distanceBetweenPositions: number = 0;
@@ -34,6 +34,10 @@
       object_position[0] = position.coords.latitude;
       object_position[1] = position.coords.longitude;
     });
+  };
+
+  const confirmPosition = () => {
+    console.log("confirmed")
     isObjectPositionSet = true;
   };
 
@@ -144,11 +148,16 @@
     <div class="card">
       {#if isObjectPositionSet == false}
         <div class="position">
-          <button on:click={getObjectPosition}>Set your object position</button>
+          <h2>Set your destination position :</h2>
+          <button on:click={getObjectPosition}>Get your position</button>
+          <p>Latitude : <input type="number" bind:value={object_position[0]} min=-90 max=90></p>
+          <p>Longitude : <input type="number" bind:value={object_position[1]} min=-180 max=180></p>
+          <button on:click={confirmPosition}>Confirm position</button>
         </div>
       {:else if isWatcherPositionSet == false}
         <div class="position">
-          <button on:click={watchActualPosition}>Authorize your position</button
+          <h2>Authorize your position :</h2>
+          <button on:click={watchActualPosition}>Follow my position</button
           >
         </div>
       {/if}
@@ -210,7 +219,6 @@
 
 <style>
   .position {
-    display: flex;
     justify-content: space-around;
   }
 
