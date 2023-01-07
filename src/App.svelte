@@ -5,6 +5,8 @@
   let watcher_position: [number, number] = [0, 0];
   // Position of the object (immobile)
   let object_position: [number, number] = [0, 0];
+  let isLatitudeValid: boolean = true;
+  let isLongitudeValid: boolean = true;
   let angleToObject: number = 0;
   let direction: string = "";
   let distanceBetweenPositions: number = 0;
@@ -37,9 +39,37 @@
   };
 
   const confirmPosition = () => {
-    console.log("confirmed")
-    isObjectPositionSet = true;
+    if (checkLatitude(object_position[0]) == true) {
+      isLatitudeValid = true;
+      if (checkLongitude(object_position[1]) == true) {
+        isObjectPositionSet = true;
+        isLatitudeValid = true;
+        isLongitudeValid = true;
+      } else {
+        isLongitudeValid = false;
+      }
+    } else {
+      isLatitudeValid = false;
+    }
   };
+
+  function checkLatitude(latitude: number) {
+    // Returns true if the given number is between -90 and 90
+    if (latitude <= 90 && -90 <= latitude) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function checkLongitude(longitude: number) {
+    // Returns true if the given number is between -180 and 180
+    if (longitude <= 180 && -180 <= longitude) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   const distance = () => {
     // The math module contains a function
@@ -119,7 +149,10 @@
       DeviceOrientationEvent.requestPermission()
         .then((permissionState) => {
           if (permissionState === "granted") {
-            window.addEventListener("deviceorientation", () => {});
+            window.addEventListener(
+              "deviceorientation",
+              deviceOrientationHandler
+            );
             isDeviceOrientationEnabled = true;
             isDeviceOrientationAuthorized = true;
           }
@@ -150,15 +183,34 @@
         <div class="position">
           <h2>Set your destination position :</h2>
           <button on:click={getObjectPosition}>Get your position</button>
-          <p>Latitude : <input type="number" bind:value={object_position[0]} min=-90 max=90></p>
-          <p>Longitude : <input type="number" bind:value={object_position[1]} min=-180 max=180></p>
+          {#if isLatitudeValid == false}
+            <p class="error">Latitude must be between -90 and 90 degrees</p>
+          {/if}
+          <p>
+            Latitude : <input
+              type="number"
+              bind:value={object_position[0]}
+              min="-90"
+              max="90"
+            />
+          </p>
+          {#if isLongitudeValid == false}
+            <p class="error">Longitude must be between -180 and 180 degrees</p>
+          {/if}
+          <p>
+            Longitude : <input
+              type="number"
+              bind:value={object_position[1]}
+              min="-180"
+              max="180"
+            />
+          </p>
           <button on:click={confirmPosition}>Confirm position</button>
         </div>
       {:else if isWatcherPositionSet == false}
         <div class="position">
           <h2>Authorize your position :</h2>
-          <button on:click={watchActualPosition}>Follow my position</button
-          >
+          <button on:click={watchActualPosition}>Follow my position</button>
         </div>
       {/if}
 
@@ -220,6 +272,10 @@
 <style>
   .position {
     justify-content: space-around;
+  }
+
+  .error {
+    color: rgb(228, 78, 78);
   }
 
   .coordinates {
