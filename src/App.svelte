@@ -18,6 +18,7 @@
   let isWatcherPositionSet: boolean = false;
   let deviceOrientation: number = 0;
   let isDeviceOrientationEnabled: boolean = false;
+  let isDeviceOrientationAuthorized: boolean = false;
   let pageTitle: string = "";
 
   const watchActualPosition = () => {
@@ -116,11 +117,13 @@
           if (permissionState === "granted") {
             window.addEventListener("deviceorientation", () => {});
             isDeviceOrientationEnabled = true;
+            isDeviceOrientationAuthorized = true;
           }
         })
         .catch(console.error);
     } else {
       isDeviceOrientationEnabled = false;
+      isDeviceOrientationAuthorized = true;
     }
   };
 
@@ -129,6 +132,7 @@
     if (isDeviceOrientationEnabled) {
       deviceOrientation = eventData.alpha;
       isDeviceOrientationEnabled = true;
+      isDeviceOrientationAuthorized = true;
     }
   }
 </script>
@@ -149,18 +153,21 @@
         </div>
       {/if}
 
-        {#if isDeviceOrientationEnabled == true}
-          <div class="position">
-            <button on:click={enableDeviceOrientation}
-              >Authorize orientation</button
-            >
-          </div>
-          <p>Device orientation : {deviceOrientation}</p>
-        {:else}
-          <p>Can't acces device orientation data.</p>
-        {/if}
+      {#if isDeviceOrientationAuthorized == false}
+        <div class="position">
+          <button on:click={enableDeviceOrientation}
+            >Authorize orientation</button
+          >
+        </div>
+      {/if}
 
       {#if isObjectPositionSet && isWatcherPositionSet}
+        {#if isDeviceOrientationEnabled == true}
+          <p>Device orientation : {deviceOrientation}</p>
+        {:else}
+          <p>Can't access device orientation data.</p>
+        {/if}
+
         <div>
           <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
             <img
