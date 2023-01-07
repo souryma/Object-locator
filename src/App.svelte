@@ -128,6 +128,7 @@
     // device orienation angle (counterclockwise)
     if (isDeviceOrientationEnabled) {
       deviceOrientation = eventData.alpha;
+      isDeviceOrientationEnabled = true;
     }
   }
 </script>
@@ -148,8 +149,7 @@
         </div>
       {/if}
 
-      {#if "deviceorientation" in window}
-        {#if isDeviceOrientationEnabled == false}
+        {#if isDeviceOrientationEnabled == true}
           <div class="position">
             <button on:click={enableDeviceOrientation}
               >Authorize orientation</button
@@ -159,9 +159,6 @@
         {:else}
           <p>Can't acces device orientation data.</p>
         {/if}
-      {:else}
-        <p>This navigator can't access device orientation data.</p>
-      {/if}
 
       {#if isObjectPositionSet && isWatcherPositionSet}
         <div>
