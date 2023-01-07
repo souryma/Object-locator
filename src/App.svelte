@@ -188,7 +188,7 @@
           {/if}
           <p>
             Latitude : <input
-              type="number"
+              type="tel"
               bind:value={object_position[0]}
               min="-90"
               max="90"
@@ -199,7 +199,7 @@
           {/if}
           <p>
             Longitude : <input
-              type="number"
+              type="tel"
               bind:value={object_position[1]}
               min="-180"
               max="180"
