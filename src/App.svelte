@@ -1,8 +1,24 @@
 <script lang="ts">
   import svelteLogo from "./assets/svelte.svg";
 
+  // Position of the navigator (mobile)
   let watcher_position = [0, 0];
+  // Position of the object (immobile)
   let object_position = [0, 0];
+  let angleToObject: number = 0;
+  let direction: string = "";
+  let distanceBetweenPositions: number = 0;
+  let distanceInKM: number = 0;
+  let distanceInCM: number = 0;
+  let distanceInM: number = 0;
+  // Data refresh rate in milliseconds
+  let refreshRate: number = 1000;
+  let clear;
+  let isObjectPositionSet: boolean = false;
+  let isWatcherPositionSet: boolean = false;
+  let deviceOrientation: number = 0;
+  let isDeviceOrientationEnabled: boolean = false;
+  let pageTitle: string = "";
 
   const watchActualPosition = () => {
     navigator.geolocation.watchPosition((position) => {
@@ -19,11 +35,6 @@
     });
     isObjectPositionSet = true;
   };
-
-  let distanceBetweenPositions: number = 0;
-  let distanceInKM: number = 0;
-  let distanceInCM: number = 0;
-  let distanceInM: number = 0;
 
   const distance = () => {
     // The math module contains a function
@@ -61,9 +72,6 @@
     );
   };
 
-  let angleToObject: number = 0;
-  let direction: string = "";
-
   const angleFromCoordinate = () => {
     // Returns angle in degrees based on coordinates
     angleToObject =
@@ -88,47 +96,17 @@
     }
   };
 
-  let angleToNorthPole: number = 0;
-
-  const angleToNorth = () => {
-    // Returns the angle heading to the north
-    let north_pole = [90, 0];
-
-    angleToNorthPole =
-      (Math.atan2(
-        north_pole[1] - watcher_position[1],
-        north_pole[0] - watcher_position[0]
-      ) *
-        180) /
-      Math.PI;
-    if (angleToNorthPole < 0) {
-      angleToNorthPole += 360;
-    }
-  };
-
-  let ms = 1000;
-  let clear;
   $: {
     clearInterval(clear);
-    clear = setInterval(distance, ms);
-    clear = setInterval(angleFromCoordinate, ms);
-    clear = setInterval(angleToNorth, ms);
+    clear = setInterval(distance, refreshRate);
+    clear = setInterval(angleFromCoordinate, refreshRate);
   }
 
-  let isObjectPositionSet: boolean = false;
-  let isWatcherPositionSet: boolean = false;
-
-  if ("DeviceOrientationEvent" in window) {
-    window.addEventListener(
-      "deviceorientation",
-      deviceOrientationHandler,
-      false
-    );
+  if ("geolocation"! in navigator) {
+    pageTitle = "Locate an object";
   } else {
-    // TODO
+    pageTitle = "Error !";
   }
-
-  let deviceOrientation: number = 0;
 
   // Request device orientation permission
   const enableDeviceOrientation = () => {
@@ -137,21 +115,25 @@
         .then((permissionState) => {
           if (permissionState === "granted") {
             window.addEventListener("deviceorientation", () => {});
+            isDeviceOrientationEnabled = true;
           }
         })
         .catch(console.error);
     } else {
+      isDeviceOrientationEnabled = false;
     }
   };
 
   function deviceOrientationHandler(eventData) {
     // device orienation angle (counterclockwise)
-    deviceOrientation = eventData.alpha;
+    if (isDeviceOrientationEnabled) {
+      deviceOrientation = eventData.alpha;
+    }
   }
 </script>
 
 <main>
-  <h1>Locate an object</h1>
+  <h1>{pageTitle}</h1>
 
   {#if "geolocation" in navigator}
     <div class="card">
@@ -166,10 +148,20 @@
         </div>
       {/if}
 
-      <div class="position">
-        <button on:click={enableDeviceOrientation}>Authorize orientation</button>
-      </div>
-      <p>Device orientation : {deviceOrientation}</p>
+      {#if "deviceorientation" in window}
+        {#if isDeviceOrientationEnabled == false}
+          <div class="position">
+            <button on:click={enableDeviceOrientation}
+              >Authorize orientation</button
+            >
+          </div>
+          <p>Device orientation : {deviceOrientation}</p>
+        {:else}
+          <p>Can't acces device orientation data.</p>
+        {/if}
+      {:else}
+        <p>This navigator can't access device orientation data.</p>
+      {/if}
 
       {#if isObjectPositionSet && isWatcherPositionSet}
         <div>
@@ -183,15 +175,7 @@
           </a>
         </div>
 
-        <div>
-          <img
-            src="/compass.jpg"
-            class="logo"
-            alt="Compass"
-            style="transform: rotate({angleToNorthPole}deg)"
-          />
-          <p>Angle to north : {angleToNorthPole}</p>
-        </div>
+        <p>Image rotation : {angleToObject + deviceOrientation} deg</p>
 
         <div class="coordinates">
           <div class="coords">
@@ -216,7 +200,7 @@
       {/if}
     </div>
   {:else}
-    <p>The navigator doesn't have Geolocation</p>
+    <p>The navigator doesn't have Geolocation. Try another one !</p>
   {/if}
 </main>
 
@@ -245,7 +229,7 @@
   .logo {
     height: 6em;
     padding: 1.5em;
-    transition: transform 0.3s;
+    /* transition: transform 0.3s; */
   }
   .logo:hover {
     filter: drop-shadow(0 0 2em #646cffaa);
