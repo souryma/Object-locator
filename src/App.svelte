@@ -194,7 +194,7 @@
 </script>
 
 <main>
-  <button on:click={getObjectPosition}>Enable compass heading</button>
+  <button on:click={enableCompassHeading}>Enable compass heading</button>
   <h1>{pageTitle}</h1>
 
   {#if "geolocation" in navigator}
