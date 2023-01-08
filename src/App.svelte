@@ -139,8 +139,8 @@
     clear = setInterval(angleFromCoordinate, refreshRate);
   }
 
-  if ("geolocation"! in navigator) {
-    pageTitle = "Locate an object";
+  if ("geolocation" in navigator) {
+    pageTitle = "Simple GPS";
   } else {
     pageTitle = "Error !";
   }
