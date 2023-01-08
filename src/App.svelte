@@ -213,14 +213,14 @@
     {#if "geolocation" in navigator && "DeviceOrientationEvent" in window}
       <div class="card">
         {#if isDeviceOrientationAuthorized == false}
-          <h2>Authorize your orientation :</h2>
+          <h2>Authorize access to your orientation :</h2>
           <button on:click={enableCompassHeading}
-            >Give my device orientation</button
+            >Give my orientation</button
           >
         {:else if isObjectPositionSet == false}
           <div class="position">
             <h2>Set your destination position :</h2>
-            <button on:click={getObjectPosition}>Set your position</button>
+            <button on:click={getObjectPosition}>My destination is here</button>
             {#if isLatitudeValid == false}
               <p class="error">Latitude must be between -90 and 90 degrees</p>
             {/if}
@@ -256,11 +256,8 @@
 
         {#if isObjectPositionSet && isWatcherPositionSet && isDeviceOrientationAuthorized}
           {#if isDeviceOrientationEnabled == false}
-            <p class="error">Can't access device orientation data.</p>
-            <p>
-              The arrow will show you the right direction if your device is
-              heading north.
-            </p>
+            <p class="error">Can't access device orientation data. The arrow will show you the right direction if your device is
+              heading north.</p>
           {/if}
 
           <div>
@@ -275,7 +272,7 @@
 
           <div class="distance">
             <p>
-              Distance to your object : {#if distanceInKM != 0}{distanceInKM} Km
+              Distance to your destination : {#if distanceInKM != 0}{distanceInKM} Km
                 /
               {/if}{distanceInM} m
             </p>
@@ -286,7 +283,7 @@
         {/if}
       </div>
     {:else}
-      <p>
+      <p class="error">
         This navigator doesn't have Geolocation or device orientation. Try
         another one !
       </p>
