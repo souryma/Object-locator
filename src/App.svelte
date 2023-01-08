@@ -120,8 +120,7 @@
     pageTitle = "Error !";
   }
 
-  // Request device orientation permission
-  const enableDeviceOrientation = () => {
+  const enableCompassHeading = () => {
     if (typeof DeviceOrientationEvent.requestPermission === "function") {
       DeviceOrientationEvent.requestPermission()
         .then((permissionState) => {
@@ -155,7 +154,22 @@
                 console.log(errorMessage);
                 isCompassHeadingEnabled = false;
               });
+          }
+        })
+        .catch(console.error);
+    }
+  };
 
+  // Request device orientation permission
+  const enableDeviceOrientation = () => {
+    if (typeof DeviceOrientationEvent.requestPermission === "function") {
+      DeviceOrientationEvent.requestPermission()
+        .then((permissionState) => {
+          if (permissionState === "granted") {
+            window.addEventListener(
+              "deviceorientation",
+              deviceOrientationHandler
+            );
             isDeviceOrientationEnabled = true;
             isDeviceOrientationAuthorized = true;
 
@@ -180,6 +194,7 @@
 </script>
 
 <main>
+  <button on:click={getObjectPosition}>Enable compass heading</button>
   <h1>{pageTitle}</h1>
 
   {#if "geolocation" in navigator}
@@ -267,17 +282,6 @@
 <style>
   .error {
     color: rgb(228, 78, 78);
-  }
-
-  .coordinates {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .coords {
-    display: flex;
-    flex-direction: column;
-    justify-content: end;
   }
 
   .card {
