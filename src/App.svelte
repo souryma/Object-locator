@@ -26,6 +26,8 @@
   let isDeviceOrientationAuthorized: boolean = false;
   let pageTitle: string = "";
   let compassHeading = 0;
+  let arrowColor: string = "logoGrey";
+
 
   const getWatcherPosition = () => {
     navigator.geolocation.watchPosition((position) => {
@@ -181,7 +183,7 @@
 <main>
   <h1>{pageTitle}</h1>
 
-  {#if "geolocation" in navigator}
+  {#if "geolocation" in navigator && "DeviceOrientationEvent" in window}
     <div class="card">
       {#if isDeviceOrientationAuthorized == false}
       <h2>Authorize your orientation :</h2>
@@ -232,13 +234,16 @@
 
         <div>
           <img
-            src="/simpleGPS_arrow.png"
-            class="logo"
+            src="/simpleGPS_arrow.svg"
+            class="logoGrey"
             alt="Direction to the object"
             style="transform: rotate({deviceOrientation +
               (angleToObject - angleToNorth)}deg)"
           />
         </div>
+
+        <p>Image orientation : {deviceOrientation +
+          (angleToObject - angleToNorth)}</p>
 
         <div class="distance">
           <p>
@@ -252,7 +257,7 @@
       {/if}
     </div>
   {:else}
-    <p>This navigator doesn't have Geolocation. Try another one !</p>
+    <p>This navigator doesn't have Geolocation or device orientation. Try another one !</p>
   {/if}
 </main>
 
@@ -266,7 +271,12 @@
     flex-direction: column;
     justify-content: space-evenly;
   }
-  .logo {
+  .logoGrey {
     height: 13em;
+    filter: invert(65%) saturate(500%) hue-rotate(86deg) brightness(118%) contrast(119%);
+  }
+  .logoGreen {
+    height: 13em;
+    filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
   }
 </style>
