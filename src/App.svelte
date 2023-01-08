@@ -27,31 +27,6 @@
   let pageTitle: string = "";
   let compassHeading = 0;
 
-  // Obtain a new *world-oriented* Full Tilt JS DeviceOrientation Promise
-  var promise = FULLTILT.getDeviceOrientation({ type: "world" });
-
-  // Wait for Promise result
-  promise
-    .then(function (deviceOrientation) {
-      // Device Orientation Events are supported
-
-      // Register a callback to run every time a new
-      // deviceorientation event is fired by the browser.
-      deviceOrientation.listen(function () {
-        // Get the current *screen-adjusted* device orientation angles
-        var currentOrientation = deviceOrientation.getScreenAdjustedEuler();
-
-        // Calculate the current compass heading that the user is 'looking at' (in degrees)
-        compassHeading = 360 - currentOrientation.alpha;
-        isCompassHeadingEnabled = true;
-      });
-    })
-    .catch(function (errorMessage) {
-      // Device Orientation Events are not supported
-      console.log(errorMessage);
-      isCompassHeadingEnabled = false;
-    });
-
   const getWatcherPosition = () => {
     navigator.geolocation.watchPosition((position) => {
       watcher_position[0] = position.coords.latitude;
@@ -155,9 +130,36 @@
               "deviceorientation",
               deviceOrientationHandler
             );
-            setOffsetToNorthPole();
+            // Obtain a new *world-oriented* Full Tilt JS DeviceOrientation Promise
+            var promise = FULLTILT.getDeviceOrientation({ type: "world" });
+
+            // Wait for Promise result
+            promise
+              .then(function (deviceOrientation) {
+                // Device Orientation Events are supported
+
+                // Register a callback to run every time a new
+                // deviceorientation event is fired by the browser.
+                deviceOrientation.listen(function () {
+                  // Get the current *screen-adjusted* device orientation angles
+                  var currentOrientation =
+                    deviceOrientation.getScreenAdjustedEuler();
+
+                  // Calculate the current compass heading that the user is 'looking at' (in degrees)
+                  compassHeading = 360 - currentOrientation.alpha;
+                  isCompassHeadingEnabled = true;
+                });
+              })
+              .catch(function (errorMessage) {
+                // Device Orientation Events are not supported
+                console.log(errorMessage);
+                isCompassHeadingEnabled = false;
+              });
+
             isDeviceOrientationEnabled = true;
             isDeviceOrientationAuthorized = true;
+
+            setOffsetToNorthPole();
           }
         })
         .catch(console.error);
@@ -228,9 +230,7 @@
       {/if}
 
       {#if isObjectPositionSet && isWatcherPositionSet && isDeviceOrientationAuthorized}
-        {#if isDeviceOrientationEnabled == true}
-          <p>Device orientation : {deviceOrientation}</p>
-        {:else}
+        {#if isDeviceOrientationEnabled == false}
           <p class="error">Can't access device orientation data.</p>
           <p>
             The arrow will show you the right direction if your device is
@@ -248,16 +248,6 @@
           />
         </div>
 
-        <div class="coordinates">
-          <div class="coords">
-            <p>Object latitude : {object_position[0]}</p>
-            <p>Object longitude : {object_position[1]}</p>
-          </div>
-          <div class="coords">
-            <p>Your latitude : {watcher_position[0]}</p>
-            <p>Your longitude : {watcher_position[1]}</p>
-          </div>
-        </div>
         <div class="distance">
           <p>
             Distance to your object : {#if distanceInKM != 0}{distanceInKM} Km /
