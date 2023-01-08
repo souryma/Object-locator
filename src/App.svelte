@@ -292,13 +292,13 @@
               src="/Dark_Green_Arrow_Up.png"
               class="logo"
               alt="Direction to the object"
-              style="transform: rotate({(compassHeading - angleToNorth) + angleToObject}deg)"
+              style="transform: rotate({(compassHeading) + angleToObject}deg)"
             />
 
           </a>
         </div>
 
-        <p>Image rotation : {(compassHeading - angleToNorth) + angleToObject} deg</p>
+        <p>Image rotation : {(compassHeading) + angleToObject} deg</p>
 
         <div class="coordinates">
           <div class="coords">
