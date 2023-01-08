@@ -12,7 +12,6 @@
   let isLongitudeValid: boolean = true;
   let angleToObject: number = 0;
   let direction: string = "";
-  let distanceBetweenPositions: number = 0;
   let distanceInKM: number = 0;
   let distanceInCM: number = 0;
   let distanceInM: number = 0;
@@ -26,7 +25,7 @@
   let isDeviceOrientationAuthorized: boolean = false;
   let pageTitle: string = "";
 
-  const watchActualPosition = () => {
+  const getWatcherPosition = () => {
     navigator.geolocation.watchPosition((position) => {
       watcher_position[0] = position.coords.latitude;
       watcher_position[1] = position.coords.longitude;
@@ -140,6 +139,55 @@
     }
   };
 
+  let angleToNorth: number = 0;
+
+  function angleToNorthPole(
+    userPosition: [number, number],
+    destination: [number, number]
+  ) {
+    // Returns the angle between three points in degree : user position(A), north pole(B), destination position(C)
+    // Ref: https://math.stackexchange.com/questions/361412/finding-the-angle-between-three-points
+
+    // If the distance between the two points is 0, angle is 0.
+    if (
+      distance(
+        userPosition[0],
+        userPosition[1],
+        destination[0],
+        destination[1]
+      ) != 0
+    ) {
+      let vectorAB: [number, number] = [
+        north_pole[0] - userPosition[0],
+        north_pole[1] - userPosition[1],
+      ];
+      let vectorAC: [number, number] = [
+        destination[0] - userPosition[0],
+        destination[1] - userPosition[1],
+      ];
+
+      let normAB = Math.sqrt(
+        Math.pow(vectorAB[0], 2) + Math.pow(vectorAB[1], 2)
+      );
+      let normAC = Math.sqrt(
+        Math.pow(vectorAC[0], 2) + Math.pow(vectorAC[1], 2)
+      );
+
+      let a = vectorAB[0] * vectorAC[0] + vectorAB[1] * vectorAC[1];
+      let b = normAB * normAC;
+
+      let angleInRadian = Math.acos(a / b);
+
+      return angleInRadian * (180 / Math.PI);
+    } else {
+      return 0;
+    }
+  }
+
+  const getAngleToNorthPole = () => {
+    angleToNorth = angleToNorthPole(watcher_position, object_position);
+  };
+
   $: {
     clearInterval(clear);
     clear = setInterval(
@@ -229,11 +277,15 @@
       {:else if isWatcherPositionSet == false}
         <div class="position">
           <h2>Authorize your position :</h2>
-          <button on:click={watchActualPosition}>Follow my position</button>
+          <button on:click={getWatcherPosition}>Follow my position</button>
         </div>
-      {/if}
+      {:else}
+        <div class="position">
+          <button on:click={getAngleToNorthPole}>Get angle to north pole</button
+          >
+          <p>Angle to north pole : {angleToNorth}</p>
+        </div>
 
-      {#if isDeviceOrientationAuthorized == false}
         <div class="position">
           <button on:click={enableDeviceOrientation}
             >Authorize orientation</button
@@ -241,7 +293,7 @@
         </div>
       {/if}
 
-      {#if isObjectPositionSet && isWatcherPositionSet}
+      {#if isObjectPositionSet && isWatcherPositionSet && isDeviceOrientationAuthorized}
         {#if isDeviceOrientationEnabled == true}
           <p>Device orientation : {deviceOrientation}</p>
         {:else}
@@ -254,7 +306,7 @@
               src="/Dark_Green_Arrow_Up.png"
               class="logo"
               alt="Direction to the object"
-              style="transform: rotate({angleToObject + deviceOrientation}deg)"
+              style="transform: rotate({angleToObject + (deviceOrientation - angleToNorth)}deg)"
             />
           </a>
         </div>
