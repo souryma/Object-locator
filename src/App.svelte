@@ -168,51 +168,8 @@
 
   let angleToNorth: number = 0;
 
-  function angleToNorthPole(
-    userPosition: [number, number],
-    destination: [number, number]
-  ) {
-    // Returns the angle between three points in degree : user position(A), north pole(B), destination position(C)
-    // Ref: https://math.stackexchange.com/questions/361412/finding-the-angle-between-three-points
-
-    // If the distance between the two points is 0, angle is 0.
-    if (
-      distance(
-        userPosition[0],
-        userPosition[1],
-        destination[0],
-        destination[1]
-      ) != 0
-    ) {
-      let vectorAB: [number, number] = [
-        north_pole[0] - userPosition[0],
-        north_pole[1] - userPosition[1],
-      ];
-      let vectorAC: [number, number] = [
-        destination[0] - userPosition[0],
-        destination[1] - userPosition[1],
-      ];
-
-      let normAB = Math.sqrt(
-        Math.pow(vectorAB[0], 2) + Math.pow(vectorAB[1], 2)
-      );
-      let normAC = Math.sqrt(
-        Math.pow(vectorAC[0], 2) + Math.pow(vectorAC[1], 2)
-      );
-
-      let a = vectorAB[0] * vectorAC[0] + vectorAB[1] * vectorAC[1];
-      let b = normAB * normAC;
-
-      let angleInRadian = Math.acos(a / b);
-
-      return angleInRadian * (180 / Math.PI);
-    } else {
-      return 0;
-    }
-  }
-
   const getAngleToNorthPole = () => {
-    angleToNorth = angleToNorthPole(watcher_position, object_position);
+    angleToNorth = compassHeading;
   };
 
   $: {
@@ -335,13 +292,13 @@
               src="/Dark_Green_Arrow_Up.png"
               class="logo"
               alt="Direction to the object"
-              style="transform: rotate({(compassHeading - deviceOrientation) + angleToObject}deg)"
+              style="transform: rotate({(compassHeading - angleToNorth) + angleToObject}deg)"
             />
 
           </a>
         </div>
 
-        <p>Image rotation : {(compassHeading - deviceOrientation) + angleToObject} deg</p>
+        <p>Image rotation : {(compassHeading - angleToNorth) + angleToObject} deg</p>
 
         <div class="coordinates">
           <div class="coords">
