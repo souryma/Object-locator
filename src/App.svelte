@@ -1,5 +1,4 @@
 <script lang="ts">
-  import svelteLogo from "./assets/svelte.svg";
   import "./lib/fulltilt.js";
 
   // GPS coordinates of the north pole
@@ -43,9 +42,6 @@
 
       // Calculate the current compass heading that the user is 'looking at' (in degrees)
       compassHeading = 360 - currentOrientation.alpha;
-
-      // Do something with `compassHeading` here...
-
     });
 
   }).catch(function(errorMessage) { // Device Orientation Events are not supported
@@ -339,13 +335,13 @@
               src="/Dark_Green_Arrow_Up.png"
               class="logo"
               alt="Direction to the object"
-              style="transform: rotate({angleToObject + (deviceOrientation - angleToNorth)}deg)"
+              style="transform: rotate({angleToObject + compassHeading}deg)"
             />
 
           </a>
         </div>
 
-        <p>Image rotation : {angleToObject + (deviceOrientation - angleToNorth)} deg</p>
+        <p>Image rotation : {angleToObject + compassHeading} deg</p>
 
         <div class="coordinates">
           <div class="coords">
