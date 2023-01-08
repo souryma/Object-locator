@@ -191,7 +191,7 @@
           {/if}
           <p>
             Latitude : <input
-              type="tel"
+              type="number"
               bind:value={object_position[0]}
               min="-90"
               max="90"
@@ -202,7 +202,7 @@
           {/if}
           <p>
             Longitude : <input
-              type="tel"
+              type="number"
               bind:value={object_position[1]}
               min="-180"
               max="180"
@@ -275,10 +275,6 @@
 </main>
 
 <style>
-  .position {
-    justify-content: space-around;
-  }
-
   .error {
     color: rgb(228, 78, 78);
   }
@@ -300,11 +296,6 @@
     justify-content: space-evenly;
   }
   .logo {
-    height: 6em;
-    padding: 1.5em;
-    /* transition: transform 0.3s; */
-  }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+    height: 13em;
   }
 </style>
