@@ -102,6 +102,15 @@
     angleToNorth = compassHeading;
   }
 
+  const updateArrowColor = () => {
+    let imageRotation: number = deviceOrientation + (angleToObject - angleToNorth);
+    if (imageRotation < 5 && imageRotation > -5 || imageRotation < 365 && imageRotation > 355) {
+      arrowColor = "logoGreen";
+    } else {
+      arrowColor = "logoGrey";
+    }
+  }
+
   $: {
     clearInterval(clear);
     clear = setInterval(
@@ -116,6 +125,7 @@
       refreshRate
     );
     clear = setInterval(angleFromCoordinate, refreshRate);
+    clear = setInterval(updateArrowColor, 250);
   }
 
   if ("geolocation" in navigator) {
@@ -186,8 +196,10 @@
   {#if "geolocation" in navigator && "DeviceOrientationEvent" in window}
     <div class="card">
       {#if isDeviceOrientationAuthorized == false}
-      <h2>Authorize your orientation :</h2>
-        <button on:click={enableCompassHeading}>Give my device orientation</button>
+        <h2>Authorize your orientation :</h2>
+        <button on:click={enableCompassHeading}
+          >Give my device orientation</button
+        >
       {:else if isObjectPositionSet == false}
         <div class="position">
           <h2>Set your destination position :</h2>
@@ -235,15 +247,12 @@
         <div>
           <img
             src="/simpleGPS_arrow.svg"
-            class="logoGrey"
+            class="{arrowColor}"
             alt="Direction to the object"
             style="transform: rotate({deviceOrientation +
               (angleToObject - angleToNorth)}deg)"
           />
         </div>
-
-        <p>Image orientation : {deviceOrientation +
-          (angleToObject - angleToNorth)}</p>
 
         <div class="distance">
           <p>
@@ -257,7 +266,10 @@
       {/if}
     </div>
   {:else}
-    <p>This navigator doesn't have Geolocation or device orientation. Try another one !</p>
+    <p>
+      This navigator doesn't have Geolocation or device orientation. Try another
+      one !
+    </p>
   {/if}
 </main>
 
@@ -273,10 +285,12 @@
   }
   .logoGrey {
     height: 13em;
-    filter: invert(65%) saturate(500%) hue-rotate(86deg) brightness(118%) contrast(119%);
+    filter: invert(65%) saturate(500%) hue-rotate(86deg) brightness(118%)
+      contrast(119%);
   }
   .logoGreen {
     height: 13em;
-    filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
+    filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg)
+      brightness(118%) contrast(119%);
   }
 </style>
