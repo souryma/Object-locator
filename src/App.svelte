@@ -254,6 +254,8 @@
           />
         </div>
 
+        <p>Image orientation : {deviceOrientation +
+          (angleToObject - angleToNorth)}</p>
         <div class="distance">
           <p>
             Distance to your object : {#if distanceInKM != 0}{distanceInKM} Km /
