@@ -219,7 +219,7 @@
         <div class="position">
           <h2>Authorize your orientation :</h2>
           {#if isCompassHeadingEnabled == false}
-          <p class="error">Can't access compass heading data.</p>
+            <p class="error">Can't access compass heading data.</p>
           {/if}
           <button on:click={enableDeviceOrientation}
             >Follow my device orientation</button
@@ -239,15 +239,13 @@
         {/if}
 
         <div>
-          <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-            <img
-              src="/Dark_Green_Arrow_Up.png"
-              class="logo"
-              alt="Direction to the object"
-              style="transform: rotate({deviceOrientation +
-                (angleToObject - angleToNorth)}deg)"
-            />
-          </a>
+          <img
+            src="/simpleGPS_arrow.png"
+            class="logo"
+            alt="Direction to the object"
+            style="transform: rotate({deviceOrientation +
+              (angleToObject - angleToNorth)}deg)"
+          />
         </div>
 
         <div class="coordinates">
