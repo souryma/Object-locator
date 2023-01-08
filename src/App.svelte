@@ -1,5 +1,6 @@
 <script lang="ts">
   import svelteLogo from "./assets/svelte.svg";
+  import "./lib/fulltilt.js";
 
   // GPS coordinates of the north pole
   const north_pole: [number, number] = [90, 0];
@@ -24,6 +25,36 @@
   let isDeviceOrientationEnabled: boolean = false;
   let isDeviceOrientationAuthorized: boolean = false;
   let pageTitle: string = "";
+
+  let compassHeading = 0;
+
+  // Obtain a new *world-oriented* Full Tilt JS DeviceOrientation Promise
+  var promise = FULLTILT.getDeviceOrientation({ 'type': 'world' });
+
+  // Wait for Promise result
+  promise.then(function(deviceOrientation) { // Device Orientation Events are supported
+
+    // Register a callback to run every time a new 
+    // deviceorientation event is fired by the browser.
+    deviceOrientation.listen(function() {
+
+      // Get the current *screen-adjusted* device orientation angles
+      var currentOrientation = deviceOrientation.getScreenAdjustedEuler();
+
+      // Calculate the current compass heading that the user is 'looking at' (in degrees)
+      compassHeading = 360 - currentOrientation.alpha;
+
+      // Do something with `compassHeading` here...
+
+    });
+
+  }).catch(function(errorMessage) { // Device Orientation Events are not supported
+
+    console.log(errorMessage);
+
+    // Implement some fallback controls here...
+
+  });
 
   const getWatcherPosition = () => {
     navigator.geolocation.watchPosition((position) => {
@@ -293,6 +324,8 @@
         </div>
       {/if}
 
+      <p>Compass heading : {compassHeading}</p>
+
       {#if isObjectPositionSet && isWatcherPositionSet && isDeviceOrientationAuthorized}
         {#if isDeviceOrientationEnabled == true}
           <p>Device orientation : {deviceOrientation}</p>
@@ -308,10 +341,11 @@
               alt="Direction to the object"
               style="transform: rotate({angleToObject + (deviceOrientation - angleToNorth)}deg)"
             />
+
           </a>
         </div>
 
-        <p>Image rotation : {angleToObject + deviceOrientation} deg</p>
+        <p>Image rotation : {angleToObject + (deviceOrientation - angleToNorth)} deg</p>
 
         <div class="coordinates">
           <div class="coords">
