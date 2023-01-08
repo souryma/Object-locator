@@ -33,6 +33,8 @@
       watcher_position[1] = position.coords.longitude;
     });
     isWatcherPositionSet = true;
+
+    setOffsetToNorthPole();
   };
 
   const getObjectPosition = () => {
@@ -95,7 +97,7 @@
   };
 
   function setOffsetToNorthPole() {
-    angleToNorth = 99;
+    angleToNorth = compassHeading;
   }
 
   $: {
@@ -129,6 +131,9 @@
               "deviceorientation",
               deviceOrientationHandler
             );
+            isDeviceOrientationEnabled = true;
+            isDeviceOrientationAuthorized = true;
+
             // Obtain a new *world-oriented* Full Tilt JS DeviceOrientation Promise
             var promise = FULLTILT.getDeviceOrientation({ type: "world" });
 
@@ -157,26 +162,6 @@
           }
         })
         .catch(console.error);
-    }
-  };
-
-  // Request device orientation permission
-  const enableDeviceOrientation = () => {
-    if (typeof DeviceOrientationEvent.requestPermission === "function") {
-      DeviceOrientationEvent.requestPermission()
-        .then((permissionState) => {
-          if (permissionState === "granted") {
-            window.addEventListener(
-              "deviceorientation",
-              deviceOrientationHandler
-            );
-            isDeviceOrientationEnabled = true;
-            isDeviceOrientationAuthorized = true;
-
-            setOffsetToNorthPole();
-          }
-        })
-        .catch(console.error);
     } else {
       isDeviceOrientationEnabled = false;
       isDeviceOrientationAuthorized = true;
@@ -194,15 +179,17 @@
 </script>
 
 <main>
-  <button on:click={enableCompassHeading}>Enable compass heading</button>
   <h1>{pageTitle}</h1>
 
   {#if "geolocation" in navigator}
     <div class="card">
-      {#if isObjectPositionSet == false}
+      {#if isDeviceOrientationAuthorized == false}
+      <h2>Authorize your orientation :</h2>
+        <button on:click={enableCompassHeading}>Give my device orientation</button>
+      {:else if isObjectPositionSet == false}
         <div class="position">
           <h2>Set your destination position :</h2>
-          <button on:click={getObjectPosition}>Get your position</button>
+          <button on:click={getObjectPosition}>Set your position</button>
           {#if isLatitudeValid == false}
             <p class="error">Latitude must be between -90 and 90 degrees</p>
           {/if}
@@ -231,16 +218,6 @@
         <div class="position">
           <h2>Authorize your position :</h2>
           <button on:click={getWatcherPosition}>Follow my position</button>
-        </div>
-      {:else if isDeviceOrientationAuthorized == false}
-        <div class="position">
-          <h2>Authorize your orientation :</h2>
-          {#if isCompassHeadingEnabled == false}
-            <p class="error">Can't access compass heading data.</p>
-          {/if}
-          <button on:click={enableDeviceOrientation}
-            >Follow my device orientation</button
-          >
         </div>
       {/if}
 
