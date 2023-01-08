@@ -292,13 +292,13 @@
               src="/Dark_Green_Arrow_Up.png"
               class="logo"
               alt="Direction to the object"
-              style="transform: rotate({(deviceOrientation) + angleToObject}deg)"
+              style="transform: rotate({deviceOrientation + (angleToObject - angleToNorth)}deg)"
             />
 
           </a>
         </div>
 
-        <p>Image rotation : {(deviceOrientation) + angleToObject} deg</p>
+        <p>Image rotation : {deviceOrientation + (angleToObject - angleToNorth)} deg</p>
 
         <div class="coordinates">
           <div class="coords">
