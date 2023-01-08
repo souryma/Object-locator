@@ -1,6 +1,9 @@
 <script lang="ts">
   import svelteLogo from "./assets/svelte.svg";
 
+  // GPS coordinates of the north pole
+  const north_pole: [number, number] = [90, 0];
+  const earth_radius = 6371;
   // Position of the navigator (mobile)
   let watcher_position: [number, number] = [0, 0];
   // Position of the object (immobile)
@@ -71,41 +74,47 @@
     }
   }
 
-  const distance = () => {
-    // The math module contains a function
-    // named toRadians which converts from
-    // degrees to radians.
-    let lon1 = (watcher_position[1] * Math.PI) / 180;
-    let lon2 = (object_position[1] * Math.PI) / 180;
-    let lat1 = (watcher_position[0] * Math.PI) / 180;
-    let lat2 = (object_position[0] * Math.PI) / 180;
+  function distance(
+    latitude1: number,
+    longitude1: number,
+    latitude2: number,
+    longitude2: number
+  ) {
+    // Returns the distance between two GPS points
 
-    // Haversine formula
-    let dlon = lon2 - lon1;
-    let dlat = lat2 - lat1;
+    let lon1 = (longitude1 * Math.PI) / 180;
+    let lon2 = (longitude2 * Math.PI) / 180;
+    let lat1 = (latitude1 * Math.PI) / 180;
+    let lat2 = (latitude2 * Math.PI) / 180;
+
+    // Haversine formula (https://fr.wikipedia.org/wiki/Formule_de_haversine)
+    let distanceLongitude = lon2 - lon1;
+    let distanceLatitude = lat2 - lat1;
     let a =
-      Math.pow(Math.sin(dlat / 2), 2) +
-      Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
+      Math.pow(Math.sin(distanceLatitude / 2), 2) +
+      Math.cos(lat1) *
+        Math.cos(lat2) *
+        Math.pow(Math.sin(distanceLongitude / 2), 2);
 
     let c = 2 * Math.asin(Math.sqrt(a));
 
     // Radius of earth in kilometers. Use 3956
     // for miles
-    let r = 6371;
 
-    // calculate the result
-    distanceBetweenPositions = c * r;
+    return c * earth_radius;
+  }
 
-    distanceInKM = parseInt(String(distanceBetweenPositions));
-    distanceInM = parseInt(
-      String((distanceBetweenPositions - distanceInKM) * 1000)
-    );
+  function fillDistanceUnits(distance: number) {
+    // Split the full distance in distance units (kilometers, meters, centimeters)
+
+    distanceInKM = parseInt(String(distance));
+
+    distanceInM = parseInt(String((distance - distanceInKM) * 1000));
+
     distanceInCM = parseInt(
-      String(
-        ((distanceBetweenPositions - distanceInKM) * 1000 - distanceInM) * 100
-      )
+      String(((distance - distanceInKM) * 1000 - distanceInM) * 100)
     );
-  };
+  }
 
   const angleFromCoordinate = () => {
     // Returns angle in degrees based on coordinates
@@ -133,7 +142,17 @@
 
   $: {
     clearInterval(clear);
-    clear = setInterval(distance, refreshRate);
+    clear = setInterval(
+      fillDistanceUnits(
+        distance(
+          watcher_position[0],
+          watcher_position[1],
+          object_position[0],
+          object_position[1]
+        )
+      ),
+      refreshRate
+    );
     clear = setInterval(angleFromCoordinate, refreshRate);
   }
 
@@ -265,7 +284,7 @@
       {/if}
     </div>
   {:else}
-    <p>The navigator doesn't have Geolocation. Try another one !</p>
+    <p>This navigator doesn't have Geolocation. Try another one !</p>
   {/if}
 </main>
 
