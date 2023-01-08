@@ -13,7 +13,6 @@
   let angleToObject: number = 0;
   let direction: string = "";
   let distanceInKM: number = 0;
-  let distanceInCM: number = 0;
   let distanceInM: number = 0;
   let angleToNorth: number = 0;
   // Data refresh rate in milliseconds
@@ -84,14 +83,8 @@
 
   function fillDistanceUnits(distance: number) {
     // Split the full distance in distance units (kilometers, meters, centimeters)
-
     distanceInKM = parseInt(String(distance));
-
     distanceInM = parseInt(String((distance - distanceInKM) * 1000));
-
-    distanceInCM = parseInt(
-      String(((distance - distanceInKM) * 1000 - distanceInM) * 100)
-    );
   }
 
   const angleFromCoordinate = () => {
@@ -280,15 +273,11 @@
             />
           </div>
 
-          <p>
-            Image orientation : {deviceOrientation +
-              (angleToObject - angleToNorth)}
-          </p>
           <div class="distance">
             <p>
               Distance to your object : {#if distanceInKM != 0}{distanceInKM} Km
                 /
-              {/if}{#if distanceInM != 0}{distanceInM} m / {/if}{distanceInCM} cm
+              {/if}{distanceInM} m
             </p>
           </div>
           <div class="orientation">
