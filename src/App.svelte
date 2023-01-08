@@ -1,22 +1,23 @@
 <script lang="ts">
   import "./lib/fulltilt.js";
+  import { distance } from "./lib/distance.svelte";
+  import { checkLatitude, checkLongitude } from "./lib/utils.svelte";
 
-  // GPS coordinates of the north pole
-  const north_pole: [number, number] = [90, 0];
-  const earth_radius = 6371;
   // Position of the navigator (mobile)
   let watcher_position: [number, number] = [0, 0];
   // Position of the object (immobile)
   let object_position: [number, number] = [0, 0];
   let isLatitudeValid: boolean = true;
   let isLongitudeValid: boolean = true;
+  let isCompassHeadingEnabled: boolean = false;
   let angleToObject: number = 0;
   let direction: string = "";
   let distanceInKM: number = 0;
   let distanceInCM: number = 0;
   let distanceInM: number = 0;
+  let angleToNorth: number = 0;
   // Data refresh rate in milliseconds
-  let refreshRate: number = 1000;
+  const refreshRate: number = 1000;
   let clear;
   let isObjectPositionSet: boolean = false;
   let isWatcherPositionSet: boolean = false;
@@ -24,33 +25,32 @@
   let isDeviceOrientationEnabled: boolean = false;
   let isDeviceOrientationAuthorized: boolean = false;
   let pageTitle: string = "";
-
   let compassHeading = 0;
 
   // Obtain a new *world-oriented* Full Tilt JS DeviceOrientation Promise
-  var promise = FULLTILT.getDeviceOrientation({ 'type': 'world' });
+  var promise = FULLTILT.getDeviceOrientation({ type: "world" });
 
   // Wait for Promise result
-  promise.then(function(deviceOrientation) { // Device Orientation Events are supported
+  promise
+    .then(function (deviceOrientation) {
+      // Device Orientation Events are supported
 
-    // Register a callback to run every time a new 
-    // deviceorientation event is fired by the browser.
-    deviceOrientation.listen(function() {
+      // Register a callback to run every time a new
+      // deviceorientation event is fired by the browser.
+      deviceOrientation.listen(function () {
+        // Get the current *screen-adjusted* device orientation angles
+        var currentOrientation = deviceOrientation.getScreenAdjustedEuler();
 
-      // Get the current *screen-adjusted* device orientation angles
-      var currentOrientation = deviceOrientation.getScreenAdjustedEuler();
-
-      // Calculate the current compass heading that the user is 'looking at' (in degrees)
-      compassHeading = 360 - currentOrientation.alpha;
+        // Calculate the current compass heading that the user is 'looking at' (in degrees)
+        compassHeading = 360 - currentOrientation.alpha;
+        isCompassHeadingEnabled = true;
+      });
+    })
+    .catch(function (errorMessage) {
+      // Device Orientation Events are not supported
+      console.log(errorMessage);
+      isCompassHeadingEnabled = false;
     });
-
-  }).catch(function(errorMessage) { // Device Orientation Events are not supported
-
-    console.log(errorMessage);
-
-    // Implement some fallback controls here...
-
-  });
 
   const getWatcherPosition = () => {
     navigator.geolocation.watchPosition((position) => {
@@ -70,65 +70,18 @@
   const confirmPosition = () => {
     if (checkLatitude(object_position[0]) == true) {
       isLatitudeValid = true;
-      if (checkLongitude(object_position[1]) == true) {
-        isObjectPositionSet = true;
-        isLatitudeValid = true;
-        isLongitudeValid = true;
-      } else {
-        isLongitudeValid = false;
-      }
     } else {
       isLatitudeValid = false;
     }
+    if (checkLongitude(object_position[1]) == true) {
+      isLongitudeValid = true;
+    } else {
+      isLongitudeValid = false;
+    }
+    if (isLongitudeValid && isLatitudeValid) {
+      isObjectPositionSet = true;
+    }
   };
-
-  function checkLatitude(latitude: number) {
-    // Returns true if the given number is between -90 and 90
-    if (latitude <= 90 && -90 <= latitude) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  function checkLongitude(longitude: number) {
-    // Returns true if the given number is between -180 and 180
-    if (longitude <= 180 && -180 <= longitude) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  function distance(
-    latitude1: number,
-    longitude1: number,
-    latitude2: number,
-    longitude2: number
-  ) {
-    // Returns the distance between two GPS points
-
-    let lon1 = (longitude1 * Math.PI) / 180;
-    let lon2 = (longitude2 * Math.PI) / 180;
-    let lat1 = (latitude1 * Math.PI) / 180;
-    let lat2 = (latitude2 * Math.PI) / 180;
-
-    // Haversine formula (https://fr.wikipedia.org/wiki/Formule_de_haversine)
-    let distanceLongitude = lon2 - lon1;
-    let distanceLatitude = lat2 - lat1;
-    let a =
-      Math.pow(Math.sin(distanceLatitude / 2), 2) +
-      Math.cos(lat1) *
-        Math.cos(lat2) *
-        Math.pow(Math.sin(distanceLongitude / 2), 2);
-
-    let c = 2 * Math.asin(Math.sqrt(a));
-
-    // Radius of earth in kilometers. Use 3956
-    // for miles
-
-    return c * earth_radius;
-  }
 
   function fillDistanceUnits(distance: number) {
     // Split the full distance in distance units (kilometers, meters, centimeters)
@@ -166,11 +119,9 @@
     }
   };
 
-  let angleToNorth: number = 0;
-
-  const getAngleToNorthPole = () => {
-    angleToNorth = compassHeading;
-  };
+  function setOffsetToNorthPole() {
+    angleToNorth = 99;
+  }
 
   $: {
     clearInterval(clear);
@@ -204,6 +155,7 @@
               "deviceorientation",
               deviceOrientationHandler
             );
+            setOffsetToNorthPole();
             isDeviceOrientationEnabled = true;
             isDeviceOrientationAuthorized = true;
           }
@@ -263,27 +215,27 @@
           <h2>Authorize your position :</h2>
           <button on:click={getWatcherPosition}>Follow my position</button>
         </div>
-      {:else}
+      {:else if isDeviceOrientationAuthorized == false}
         <div class="position">
-          <button on:click={getAngleToNorthPole}>Get angle to north pole</button
-          >
-          <p>Angle to north pole : {angleToNorth}</p>
-        </div>
-
-        <div class="position">
+          <h2>Authorize your orientation :</h2>
+          {#if isCompassHeadingEnabled == false}
+          <p class="error">Can't access compass heading data.</p>
+          {/if}
           <button on:click={enableDeviceOrientation}
-            >Authorize orientation</button
+            >Follow my device orientation</button
           >
         </div>
       {/if}
-
-      <p>Compass heading : {compassHeading}</p>
 
       {#if isObjectPositionSet && isWatcherPositionSet && isDeviceOrientationAuthorized}
         {#if isDeviceOrientationEnabled == true}
           <p>Device orientation : {deviceOrientation}</p>
         {:else}
-          <p>Can't access device orientation data.</p>
+          <p class="error">Can't access device orientation data.</p>
+          <p>
+            The arrow will show you the right direction if your device is
+            heading north.
+          </p>
         {/if}
 
         <div>
@@ -292,13 +244,11 @@
               src="/Dark_Green_Arrow_Up.png"
               class="logo"
               alt="Direction to the object"
-              style="transform: rotate({deviceOrientation + (angleToObject - angleToNorth)}deg)"
+              style="transform: rotate({deviceOrientation +
+                (angleToObject - angleToNorth)}deg)"
             />
-
           </a>
         </div>
-
-        <p>Image rotation : {deviceOrientation + (angleToObject - angleToNorth)} deg</p>
 
         <div class="coordinates">
           <div class="coords">
@@ -317,7 +267,6 @@
           </p>
         </div>
         <div class="orientation">
-          <p>Angle to your object : {angleToObject}°</p>
           <p>Direction : {direction}</p>
         </div>
       {/if}
